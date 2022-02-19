@@ -31,6 +31,15 @@ export const FormContainer = styled.form`
   flex-direction: column;
 `;
 
+export const Select = styled.select`
+  flex: 1;
+  min-width: 40%;
+  margin: 20px 10px 0 0;
+  padding: 10px;
+`;
+
+export const Option = styled.option``;
+
 export const Input = styled.input`
   flex: 1;
   min-width: 40%;
@@ -59,9 +68,9 @@ export const LinkContainer = styled.div`
   display: flex;
   padding: 8px 0;
   margin: 5px 0;
-  `;
-  
-  export const Link = styled.p`
+`;
+
+export const Link = styled.p`
   margin: 5px 0;
   font-size: 12px;
   text-decoration: underline;
