@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Icon } from "@mui/material";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import axios from "axios";
 
 import {
   Button,
@@ -26,6 +27,8 @@ const Form = () => {
     water: null,
   });
 
+  const [location, setlocation] = useState({ lat: null, lon: null });
+
   const handleClick = () => {
     alert(`Entered Data:\n
             season: ${data.season}
@@ -45,6 +48,66 @@ const Form = () => {
     }));
   };
 
+  const handleOnDetchAutomaticallyClick = async () => {
+    try {
+      const apiKey = process.env.REACT_APP_WEATHER_API;
+      const { data } = await axios.get(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}`
+      );
+
+      const { daily } = data;
+
+      let tempSum = 0,
+        humiditySum = 0;
+
+      daily.forEach((element) => {
+        humiditySum += element.humidity;
+        let avg = (element.temp.max + element.temp.min) / 2;
+        tempSum += avg;
+      });
+
+      const avgTemp = tempSum / daily.length;
+      const avgHumidity = humiditySum / daily.length;
+
+      setData((prevState) => ({
+        ...prevState,
+        temperature: avgTemp,
+        humidity: avgHumidity,
+      }));
+    } catch (error) {
+      alert("Error detecting weather conditions automatically");
+      console.log(error);
+    }
+  };
+
+  const getLocation = () => {
+    if (!navigator.geolocation) {
+      alert(
+        "Auto detection of location is not compatible with your current browser"
+      );
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log(position.coords.latitude, position.coords.longitude);
+          setlocation({
+            ...location,
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+        },
+        (err) => {
+          alert("Unable to retrieve your location");
+          console.log(err);
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    getLocation();
+    console.log(location);
+  }, []);
+
   return (
     <Container>
       <Wrapper type="login">
@@ -63,34 +126,40 @@ const Form = () => {
           <Input
             name="phValue"
             placeholder="Ph Value"
+            value={data.phValue}
             onChange={(e) => handleChange(e)}
           />
           <Input
             name="temperature"
             placeholder="Temperature"
+            value={data.temperature}
             onChange={(e) => handleChange(e)}
           />
           <Input
             name="humidity"
             placeholder="Humidity"
+            value={data.humidity}
             onChange={(e) => handleChange(e)}
           />
           <Input
             name="rainfall"
             placeholder="Rainfall"
+            value={data.rainfall}
             onChange={(e) => handleChange(e)}
           />
           <Input
             name="yield"
             placeholder="Yield"
+            value={data.yield}
             onChange={(e) => handleChange(e)}
           />
           <Input
             name="water"
             placeholder="Water"
+            value={data.water}
             onChange={(e) => handleChange(e)}
           />
-          <LinkContainer>
+          <LinkContainer onClick={handleOnDetchAutomaticallyClick}>
             <Link>Detect Automatically </Link>
             <Icon sx={{ cursor: "pointer" }}>
               <LocationOnOutlinedIcon />
